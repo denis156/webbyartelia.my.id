@@ -72,7 +72,10 @@ class ProjectResource extends Resource
                                                 'bulletList',
                                                 'orderedList',
                                             ])
-                                            ->placeholder('Masukkan deskripsi proyek'),
+                                            ->maxLength(500) // Batasan 500 karakter
+                                            ->helperText(fn($state): string => 'Sisa karakter: ' . (500 - str_word_count($state)))
+                                            ->placeholder('Masukkan deskripsi singkat proyek (maksimal 500 karakter)')
+                                            ->columnSpanFull()
                                     ]),
 
                                 Section::make('Pengaturan Harga & Status')
