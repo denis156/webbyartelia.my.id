@@ -167,9 +167,9 @@
                             <div class="mt-2 bg-gray-50 border border-gray-200 rounded-lg p-4">
                                 <div>
                                     <span class="font-medium text-black/90">Deskripsi Proyek:</span>
-                                    <p class="font-medium text-sm text-black/80 mt-1">
-                                        {{ $this->record->project->description }}
-                                    </p>
+                                    <div class="font-medium text-sm text-black/80 mt-1 prose prose-sm max-w-none">
+                                        {!! $this->record->project->description !!}
+                                    </div>
                                 </div>
                                 <div class="mt-3">
                                     <span class="font-medium text-black/90 text-base">
