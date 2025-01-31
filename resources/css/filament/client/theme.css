@@ -8,9 +8,9 @@
 
 .support-client-wrapper > .support-client-card {
     @apply w-full p-6
-           bg-gradient-to-r from-success-600 to-success-700
+           bg-gradient-to-r from-primary-500 to-primary-600
            rounded-xl
-           border border-success-500/20
+           border border-primary-400/20
            shadow-lg hover:shadow-xl
            transition-all duration-300
            overflow-hidden;
@@ -30,7 +30,7 @@
            px-4 py-3
            rounded-xl
            font-semibold
-           text-success-700
+           text-primary-600
            transition-all duration-300
            hover:scale-[1.02]
            hover:shadow-md
