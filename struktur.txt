@@ -1,0 +1,151 @@
+# Struktur Detail Aplikasi Web by Artelia menggunakan Filament 3
+
+## 1. Panel Admin Resources
+
+### UserResource (Model: User)
+- Fungsi: Manajemen pengguna sistem
+- Fitur:
+  * CRUD pengguna (admin & client)
+  * Aktivasi/deaktivasi akun
+  * Manajemen role dan perizinan
+  * Upload foto profil
+  * Melihat riwayat aktivitas user
+  * Relasi dengan projects, supports, payments
+
+### ProjectResource (Model: Project)
+- Fungsi: Manajemen seluruh proyek
+- Fitur:
+  * CRUD proyek
+  * Approval/reject proyek baru
+  * Tracking progress proyek
+  * Manajemen timeline & milestone
+  * Pengelolaan file requirements
+  * Generate invoice untuk proyek
+  * Update status proyek
+  * Notifikasi deadline
+
+### InvoiceResource (Model: Invoice)
+- Fungsi: Manajemen faktur pembayaran
+- Fitur:
+  * Pembuatan invoice otomatis
+  * Tracking status pembayaran
+  * Manajemen pembayaran parsial
+  * Pengiriman invoice ke client
+  * Reminder pembayaran
+  * Export invoice ke PDF
+  * Riwayat pembayaran
+
+### PaymentResource (Model: Payment)
+- Fungsi: Pengelolaan pembayaran
+- Fitur:
+  * Verifikasi pembayaran
+  * Upload bukti pembayaran
+  * Tracking status pembayaran
+  * Konfirmasi pembayaran
+  * Riwayat transaksi
+  * Report pembayaran
+  * Notifikasi pembayaran baru
+
+### SupportResource (Model: Support)
+- Fungsi: Manajemen tiket bantuan
+- Fitur:
+  * Pengelolaan tiket support
+  * Kategorisasi tiket
+  * Prioritas tiket
+  * Assignment ke admin
+  * Tracking status tiket
+  * Internal notes
+  * File attachment
+  * Notifikasi tiket baru
+
+### SupportReplyResource (Model: SupportReply)
+- Fungsi: Manajemen balasan tiket
+- Fitur:
+  * Balasan publik/internal
+  * File attachment
+  * Notifikasi balasan
+  * Tracking respons time
+  * History komunikasi
+
+## 2. Panel Client Resources
+
+### ProjectResource
+- Fungsi: Manajemen proyek client
+- Fitur:
+  * Melihat proyek sendiri
+  * Submit proyek baru
+  * Tracking progress
+  * Upload requirements
+  * Melihat timeline
+  * Komunikasi dengan admin
+  * Download deliverables
+
+### InvoiceResource
+- Fungsi: Manajemen invoice client
+- Fitur:
+  * Melihat invoice pribadi
+  * Download invoice
+  * Upload bukti pembayaran
+  * Tracking status pembayaran
+  * History pembayaran
+  * Payment reminder
+
+### SupportResource
+- Fungsi: Manajemen support client
+- Fitur:
+  * Submit tiket baru
+  * Tracking status tiket
+  * Komunikasi dengan admin
+  * Upload file pendukung
+  * History tiket
+
+## 3. Custom Pages
+
+### Dashboard Admin
+- Overview statistik proyek
+- Monitoring pendapatan
+- Alert deadline proyek
+- Notifikasi pembayaran & support
+- Quick actions
+
+### Dashboard Client
+- Status proyek aktif
+- Invoice yang harus dibayar
+- Tiket support aktif
+- Progress proyek
+- Notifikasi
+
+### FinancialReports
+- Laporan pendapatan
+- Analisis pembayaran
+- Forecast keuangan
+- Export laporan
+
+### Analytics
+- Analisis performa proyek
+- Statistik support ticket
+- Trend pembayaran
+- Customer satisfaction
+
+## 4. Widgets
+
+### Stats Widgets
+- ProjectStatsWidget (total, active, completed)
+- PaymentStatsWidget (pending, completed, total)
+- SupportTicketStatsWidget (open, resolved, response time)
+
+### Chart Widgets
+- MonthlyRevenueChart (pendapatan bulanan)
+- ProjectProgressChart (progress semua proyek)
+- SupportTicketChart (trend tiket support)
+
+### List Widgets
+- LatestProjectsWidget (proyek terbaru)
+- PendingPaymentsWidget (pembayaran pending)
+- ActiveTicketsWidget (tiket aktif)
+
+## 5. Custom Actions
+- ApproveProject (approval proyek)
+- GenerateInvoice (generate invoice otomatis)
+- VerifyPayment (verifikasi pembayaran)
+- UpdateProgress (update progress proyek)
