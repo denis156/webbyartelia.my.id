@@ -2,27 +2,27 @@
 
 @config 'tailwind.config.js';
 
-.support-card-wrapper {
+.support-admin-wrapper {
     @apply p-4;
 }
 
-.support-card-wrapper > .support-card {
+.support-admin-wrapper > .support-admin-card {
     @apply w-full p-6
-           bg-gradient-to-r from-primary-600 to-primary-700
+           bg-gradient-to-r from-primary-500 to-primary-600
            rounded-xl
-           border border-primary-500/20
+           border border-primary-400/20
            shadow-lg hover:shadow-xl
            transition-all duration-300
            overflow-hidden;
 }
 
-.support-card-wrapper > .support-card > .card-text {
+.support-admin-wrapper > .support-admin-card > .card-text {
     @apply font-bold text-lg md:text-xl
            text-center text-white
            leading-tight;
 }
 
-.support-card-wrapper > .support-card > .support-button {
+.support-admin-wrapper > .support-admin-card > .support-button {
     @apply bg-white/90 hover:bg-white
            w-full block
            text-center
@@ -30,7 +30,7 @@
            px-4 py-3
            rounded-xl
            font-semibold
-           text-primary-700
+           text-primary-600
            transition-all duration-300
            hover:scale-[1.02]
            hover:shadow-md
