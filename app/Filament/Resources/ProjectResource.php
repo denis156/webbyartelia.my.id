@@ -59,8 +59,10 @@ class ProjectResource extends Resource
                                         Forms\Components\TextInput::make('project_name')
                                             ->label('Nama Proyek')
                                             ->required()
-                                            ->maxLength(255)
-                                            ->placeholder('Masukkan nama proyek'),
+                                            ->maxLength(100)
+                                            ->minLength(3)
+                                            ->helperText(fn($state): string => 'Sisa karakter: ' . (100 - strlen($state)))
+                                            ->placeholder('Masukkan nama proyek (maks. 100 karakter)'),
 
                                         Forms\Components\RichEditor::make('description')
                                             ->label('Deskripsi')
@@ -72,9 +74,9 @@ class ProjectResource extends Resource
                                                 'bulletList',
                                                 'orderedList',
                                             ])
-                                            ->maxLength(500) // Batasan 500 karakter
-                                            ->helperText(fn($state): string => 'Sisa karakter: ' . (500 - str_word_count($state)))
-                                            ->placeholder('Masukkan deskripsi singkat proyek (maksimal 500 karakter)')
+                                            ->maxLength(200) // Batasan 200 karakter
+                                            ->helperText(fn($state): string => 'Sisa karakter: ' . (200 - str_word_count($state)))
+                                            ->placeholder('Masukkan deskripsi singkat proyek (maksimal 200 karakter)')
                                             ->columnSpanFull()
                                     ]),
 
@@ -200,7 +202,12 @@ class ProjectResource extends Resource
                     ->copyable()
                     ->alignCenter()
                     ->copyMessage('Nama proyek berhasil disalin')
-                    ->wrap(),
+                    ->limit(50)
+                    ->tooltip(function ($state) {
+                        return strlen($state) > 50 ? $state : null;
+                    })
+                    ->icon('fluentui-document-bullet-list-20-o')
+                    ->iconColor('primary'),
 
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Klien')
