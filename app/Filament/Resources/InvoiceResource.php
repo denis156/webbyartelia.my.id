@@ -243,116 +243,103 @@ class InvoiceResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->contentGrid([
-                'md' => 2,
-                'xl' => 3,
-            ])
             ->columns([
-                Tables\Columns\Layout\Stack::make([
-                    // Header Section dengan Split
-                    Tables\Columns\Layout\Split::make([
-                        Tables\Columns\TextColumn::make('invoice_number')
-                            ->label('No. Faktur')
-                            ->searchable()
-                            ->sortable()
-                            ->copyable()
-                            ->copyMessage('Nomor faktur berhasil disalin')
-                            ->icon('fluentui-document-bullet-list-multiple-20')
-                            ->iconColor('primary')
-                            ->weight(FontWeight::Bold)
-                            ->grow(false),
+                Tables\Columns\TextColumn::make('#')
+                    ->rowIndex()
+                    ->weight(FontWeight::Bold)
+                    ->alignLeft(),
 
-                        Tables\Columns\TextColumn::make('status')
-                            ->badge()
-                            ->color(fn(string $state): string => match ($state) {
-                                'draft' => 'gray',
-                                'sent' => 'info',
-                                'paid' => 'success',
-                                'partially_paid' => 'warning',
-                                'cancelled' => 'danger',
-                                default => 'gray',
-                            })
-                            ->icon(fn(string $state): string => match ($state) {
-                                'draft' => 'fluentui-send-clock-20',
-                                'sent' => 'fluentui-mail-checkmark-20',
-                                'paid' => 'fluentui-receipt-money-20',
-                                'partially_paid' => 'fluentui-money-calculator-20',
-                                'cancelled' => 'fluentui-dismiss-circle-20',
-                                default => 'fluentui-document-bullet-list-20',
-                            })
-                            ->formatStateUsing(fn(string $state): string => match ($state) {
-                                'draft' => 'Draft',
-                                'sent' => 'Terkirim',
-                                'paid' => 'Lunas',
-                                'partially_paid' => 'Bayar Sebagian',
-                                'cancelled' => 'Dibatalkan',
-                                default => $state,
-                            }),
-                    ])->grow(false),
+                Tables\Columns\TextColumn::make('invoice_number')
+                    ->label('No. Faktur')
+                    ->searchable()
+                    ->copyable()
+                    ->alignCenter()
+                    ->copyMessage('Nomor faktur berhasil disalin')
+                    ->icon('fluentui-document-bullet-list-multiple-20-o')
+                    ->iconColor('primary'),
 
-                    // Project Info
-                    Tables\Columns\Layout\Split::make([
-                        Tables\Columns\TextColumn::make('project.project_name')
-                            ->label('Proyek')
-                            ->searchable()
-                            ->weight(FontWeight::Medium)
-                            ->wrap()
-                            ->grow(),
+                Tables\Columns\TextColumn::make('project.project_name')
+                    ->label('Proyek')
+                    ->searchable()
+                    ->alignCenter()
+                    ->description(fn($record) => str()->limit(strip_tags($record->project->description), 50))
+                    ->icon('fluentui-archive-20-o')
+                    ->iconColor('primary'),
 
-                        Tables\Columns\TextColumn::make('created_at')
-                            ->label('Dibuat')
-                            ->date('d M Y')
-                            ->color('gray')
-                            ->grow(false),
-                    ])->from('md'),
+                Tables\Columns\TextColumn::make('project.user.name')
+                    ->label('Klien')
+                    ->searchable()
+                    ->alignCenter()
+                    ->description(fn($record) => $record->project->user->email ?? '')
+                    ->icon('fluentui-person-mail-20-o')
+                    ->iconColor('primary'),
 
-                    // Payment Info with Grid
-                    Tables\Columns\Layout\Split::make([
-                        Tables\Columns\Layout\Stack::make([
-                            Tables\Columns\TextColumn::make('total_amount')
-                                ->label('Total Tagihan')
-                                ->money('IDR')
-                                ->alignment(\Filament\Support\Enums\Alignment::Center)
-                                ->weight(FontWeight::Bold)
-                                ->badge()
-                                ->color('gray'),
+                Tables\Columns\TextColumn::make('total_amount')
+                    ->label('Total Tagihan')
+                    ->money('IDR')
+                    ->alignCenter()
+                    ->searchable()
+                    ->sortable()
+                    ->description(fn($record) => $record->tax_amount > 0 ? "Pajak: {$record->tax_amount}%" : null),
 
-                            Tables\Columns\TextColumn::make('paid_amount')
-                                ->label('Sudah Dibayar')
-                                ->money('IDR')
-                                ->alignment(\Filament\Support\Enums\Alignment::Center)
-                                ->weight(FontWeight::Medium)
-                                ->badge()
-                                ->color(fn($record) => $record->isPaid() ? 'success' : 'warning'),
+                Tables\Columns\TextColumn::make('paid_amount')
+                    ->label('Dibayar')
+                    ->money('IDR')
+                    ->alignCenter()
+                    ->description(fn($record) => $record->paid_at ? "Dibayar pada: " . $record->paid_at->format('d M Y') : null),
 
-                            Tables\Columns\TextColumn::make('remaining_amount')
-                                ->label('Sisa Tagihan')
-                                ->money('IDR')
-                                ->alignment(\Filament\Support\Enums\Alignment::Center)
-                                ->weight(FontWeight::Medium)
-                                ->badge()
-                                ->color(fn($record) => $record->remaining_amount > 0 ? 'danger' : 'success'),
-                        ])->space(1),
+                Tables\Columns\TextColumn::make('remaining_amount')
+                    ->label('Sisa')
+                    ->money('IDR')
+                    ->alignCenter()
+                    ->color(fn($record) => $record->remaining_amount > 0 ? 'danger' : 'success')
+                    ->description(fn($record) => $record->remaining_amount > 0 ? "Belum Lunas" : "Lunas"),
 
-                        // Due Date Info
-                        Tables\Columns\Layout\Stack::make([
-                            Tables\Columns\TextColumn::make('due_date')
-                                ->label('Jatuh Tempo')
-                                ->date('d M Y')
-                                ->badge()
-                                ->color(fn($record) => $record->isOverdue() ? 'danger' : 'gray')
-                                ->icon('fluentui-calendar-clock-20')
-                                ->description(fn($record) => $record->due_date?->diffForHumans()),
+                Tables\Columns\TextColumn::make('status')
+                    ->label('Status')
+                    ->badge()
+                    ->alignCenter()
+                    ->colors([
+                        'gray' => 'draft',
+                        'warning' => 'partially_paid',
+                        'success' => ['paid', 'sent'],
+                        'danger' => 'cancelled',
+                    ])
+                    ->icons([
+                        'fluentui-send-clock-20' => 'draft',
+                        'fluentui-mail-checkmark-20' => 'sent',
+                        'fluentui-receipt-money-20' => 'paid',
+                        'fluentui-money-calculator-20' => 'partially_paid',
+                        'fluentui-dismiss-circle-20' => 'cancelled',
+                    ])
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'draft' => 'Draft',
+                        'sent' => 'Terkirim',
+                        'paid' => 'Lunas',
+                        'partially_paid' => 'Bayar Sebagian',
+                        'cancelled' => 'Dibatalkan',
+                        default => $state,
+                    }),
 
-                            Tables\Columns\TextColumn::make('tax_amount')
-                                ->label('Pajak')
-                                ->formatStateUsing(fn($state) => $state ? "{$state}%" : '0%')
-                                ->badge()
-                                ->color('gray')
-                                ->visible(fn($record) => $record && !is_null($record->tax_amount) && $record->tax_amount > 0),
-                        ])->space(1),
-                    ])->from('sm'),
-                ])->space(3),
+                Tables\Columns\TextColumn::make('due_date')
+                    ->label('Jatuh Tempo')
+                    ->date('d M Y')
+                    ->alignCenter()
+                    ->sortable()
+                    ->color(fn($record) => $record->isOverdue() ? 'danger' : 'gray')
+                    ->description(fn($record) => $record->due_date?->diffForHumans()),
+
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Dibuat Pada')
+                    ->dateTime('d M Y H:i')
+                    ->toggleable()
+                    ->alignCenter()
+                    ->description(fn($record) => $record->created_at->diffForHumans())
+                    ->tooltip(
+                        fn($record): string =>
+                        "Dibuat: {$record->created_at->format('d M Y H:i')}\n" .
+                            "Diupdate: {$record->updated_at->format('d M Y H:i')}"
+                    ),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
