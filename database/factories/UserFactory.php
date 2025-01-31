@@ -10,39 +10,19 @@ class UserFactory extends Factory
 {
     protected $model = User::class;
 
-    public function definition(): array
+    public function definition()
     {
         return [
-            'name' => fake('id_ID')->name(),
+            'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
-            'phone_number' => fake('id_ID')->phoneNumber(),
-            'address' => fake('id_ID')->address(),
+            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'role' => fake()->randomElement(['admin', 'client']),
+            'phone_number' => fake()->phoneNumber(),
+            'address' => fake()->address(),
+            'profile_photo' => null,
             'email_verified_at' => now(),
-            'password' => bcrypt('password'),
-            'remember_token' => Str::random(10),
             'is_active' => true,
-            'role' => 'client',
+            'remember_token' => Str::random(10),
         ];
-    }
-
-    public function admin(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'role' => 'admin',
-        ]);
-    }
-
-    public function client(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'role' => 'client',
-        ]);
-    }
-
-    public function unverified(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
     }
 }

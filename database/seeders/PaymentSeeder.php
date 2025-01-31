@@ -2,111 +2,79 @@
 
 namespace Database\Seeders;
 
-use App\Models\Payment;
-use App\Models\Invoice;
 use App\Models\User;
+use App\Models\Invoice;
+use App\Models\Payment;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
 
 class PaymentSeeder extends Seeder
 {
     public function run(): void
     {
-        $admin = User::where('role', 'admin')->first();
+        // Pastikan ada admin
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Admin User',
+                'password' => bcrypt('password'),
+                'role' => 'admin',
+            ]
+        );
 
-        if (!$admin) {
-            Log::warning('No admin found for payment verification. Skipping payment seeding.');
-            return;
-        }
-
-        $invoices = Invoice::where('status', 'sent')->get();
-
-        if ($invoices->isEmpty()) {
-            Log::info('No sent invoices found for payment seeding.');
-            return;
-        }
+        // Ambil semua invoice yang belum lunas
+        $invoices = Invoice::whereIn('status', ['sent', 'partially_paid'])->get();
 
         foreach ($invoices as $invoice) {
-            try {
-                if (rand(1, 100) <= 70) { // 70% chance of having payment
-                    DB::transaction(function () use ($invoice, $admin) {
-                        $isFullPayment = rand(1, 100) <= 60; // 60% chance of full payment
-                        $amount = $isFullPayment ?
-                            $invoice->total_amount :
-                            ($invoice->total_amount * rand(30, 70) / 100); // 30-70% of total
+            // Buat 1-3 pembayaran untuk setiap invoice
+            $paymentCount = rand(1, 3);
 
-                        $payment = Payment::create([
-                            'invoice_id' => $invoice->id,
-                            'payment_number' => $this->generatePaymentNumber(),
-                            'amount' => $amount,
-                            'payment_method' => $this->getRandomPaymentMethod(),
-                            'status' => 'verified',
-                            'payment_notes' => $this->generatePaymentNotes($amount),
-                            'verified_by' => $admin->id,
-                            'verified_at' => now(),
-                        ]);
+            for ($i = 0; $i < $paymentCount; $i++) {
+                // Hitung sisa yang perlu dibayar
+                $remainingToPay = $invoice->total_amount - $invoice->paid_amount;
 
-                        // Update invoice
-                        $invoice->paid_amount = $amount;
-                        $invoice->remaining_amount = $invoice->total_amount - $amount;
-                        $invoice->status = $amount >= $invoice->total_amount ? 'paid' : 'partially_paid';
-                        $invoice->paid_at = now();
-                        $invoice->save();
-
-                        Log::info("Created payment: {$payment->payment_number} for invoice: {$invoice->invoice_number}");
-                    });
+                if ($remainingToPay <= 0) {
+                    continue;
                 }
-            } catch (\Exception $e) {
-                Log::error("Failed to create payment for invoice {$invoice->id}: " . $e->getMessage());
-                continue;
+
+                // Tentukan jumlah pembayaran (antara 10% - 100% dari sisa)
+                $paymentAmount = $remainingToPay * (rand(10, 100) / 100);
+                $paymentAmount = round($paymentAmount, 2);
+
+                // Buat payment
+                $payment = Payment::create([
+                    'invoice_id' => $invoice->id,
+                    'payment_number' => 'PAY-' . strtoupper(uniqid()),
+                    'amount' => $paymentAmount,
+                    'payment_method' => fake()->randomElement(['cash', 'bank_transfer']),
+                    'status' => fake()->randomElement(['pending', 'verified', 'rejected']),
+                    'payment_notes' => fake()->optional()->sentence(),
+                    'payment_proof' => null,
+                ]);
+
+                // Jika payment verified, update verified_by dan invoice
+                if ($payment->status === 'verified') {
+                    $payment->update([
+                        'verified_by' => $admin->id,
+                        'verified_at' => now(),
+                    ]);
+
+                    // Update invoice paid amount dan status
+                    $newPaidAmount = $invoice->paid_amount + $paymentAmount;
+                    $newRemainingAmount = $invoice->total_amount - $newPaidAmount;
+
+                    $invoice->update([
+                        'paid_amount' => $newPaidAmount,
+                        'remaining_amount' => $newRemainingAmount,
+                        'status' => $newPaidAmount >= $invoice->total_amount ? 'paid' : 'partially_paid'
+                    ]);
+                }
+                // Jika payment rejected, tambahkan rejection reason
+                elseif ($payment->status === 'rejected') {
+                    $payment->update([
+                        'rejection_reason' => fake()->sentence()
+                    ]);
+                }
             }
         }
-    }
-
-    private function generatePaymentNumber(): string
-    {
-        $prefix = 'PAY-' . date('ymd');
-        $number = str_pad(rand(1, 99999), 5, '0', STR_PAD_LEFT);
-
-        while (Payment::where('payment_number', $prefix . '-' . $number)->exists()) {
-            $number = str_pad(rand(1, 99999), 5, '0', STR_PAD_LEFT);
-        }
-
-        return $prefix . '-' . $number;
-    }
-
-    private function getRandomPaymentMethod(): string
-    {
-        $methods = [
-            'bank_transfer' => 70,
-            'cash' => 30,
-        ];
-
-        $rand = rand(1, array_sum($methods));
-        $current = 0;
-
-        foreach ($methods as $method => $weight) {
-            $current += $weight;
-            if ($rand <= $current) {
-                return $method;
-            }
-        }
-
-        return 'bank_transfer';
-    }
-
-    private function generatePaymentNotes(float $amount): string
-    {
-        $templates = [
-            "Pembayaran invoice sebesar Rp%s telah diterima",
-            "Pembayaran diterima melalui %s sejumlah Rp%s",
-            "Konfirmasi pembayaran Rp%s sudah diverifikasi",
-        ];
-
-        $template = $templates[array_rand($templates)];
-        $formattedAmount = number_format($amount, 0, ',', '.');
-
-        return sprintf($template, $formattedAmount);
     }
 }

@@ -13,37 +13,34 @@ class SupportSeeder extends Seeder
     public function run(): void
     {
         $projects = Project::all();
-        $admin = User::where('role', 'admin')->first();
-        $ticketCounter = 1;
+        $adminId = User::where('role', 'admin')->first()->id;
 
         foreach ($projects as $project) {
-            $numSupports = rand(0, 2);
-
-            for ($i = 0; $i < $numSupports; $i++) {
-                // Buat ticket number yang dijamin unik menggunakan counter
-                $ticketNumber = sprintf('TIC-%s-%04d', date('Ymd'), $ticketCounter++);
-
-                $support = Support::factory()->create([
+            // Create 0-3 support tickets for each project
+            Support::factory()
+                ->count(rand(0, 3))
+                ->create([
                     'user_id' => $project->user_id,
-                    'project_id' => $project->id,
-                    'ticket_number' => $ticketNumber,
-                ]);
+                    'project_id' => $project->id
+                ])
+                ->each(function ($support) use ($adminId, $project) {
+                    // Create 1-5 replies for each support ticket
+                    SupportReply::factory()
+                        ->count(rand(1, 5))
+                        ->create([
+                            'support_id' => $support->id,
+                            'user_id' => rand(0, 1) ? $adminId : $project->user_id
+                        ]);
 
-                // Buat replies untuk support ticket ini
-                // Reply dari client
-                SupportReply::factory(rand(1, 3))->create([
-                    'support_id' => $support->id,
-                    'user_id' => $project->user_id,
-                    'is_internal' => false,
-                ]);
-
-                // Reply dari admin
-                SupportReply::factory(rand(1, 3))->create([
-                    'support_id' => $support->id,
-                    'user_id' => $admin->id,
-                    'is_internal' => false,
-                ]);
-            }
+                    // 60% chance of being resolved
+                    if (rand(1, 100) <= 60) {
+                        $support->update([
+                            'status' => 'resolved',
+                            'resolved_at' => now(),
+                            'resolved_by' => $adminId
+                        ]);
+                    }
+                });
         }
     }
 }

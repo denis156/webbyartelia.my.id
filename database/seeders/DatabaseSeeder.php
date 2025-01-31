@@ -8,12 +8,13 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // Important: UserSeeder must run first
         $this->call([
             UserSeeder::class,
             ProjectSeeder::class,
-            SupportSeeder::class,
             InvoiceSeeder::class,
             PaymentSeeder::class,
+            SupportSeeder::class,
         ]);
     }
 }

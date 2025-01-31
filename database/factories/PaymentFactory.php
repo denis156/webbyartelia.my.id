@@ -11,39 +11,19 @@ class PaymentFactory extends Factory
 {
     protected $model = Payment::class;
 
-    public function definition(): array
+    public function definition()
     {
-        $invoice = Invoice::factory()->create();
-        $amount = $invoice->remaining_amount;
-
         return [
-            'invoice_id' => $invoice->id,
-            'payment_number' => 'PAY-' . date('ymd') . '-' . strtoupper(uniqid()),
-            'amount' => $amount,
-            'payment_method' => $this->faker->randomElement(['cash', 'bank_transfer']),
-            'status' => 'pending',
+            'invoice_id' => Invoice::factory(),
+            'payment_number' => 'PAY-' . strtoupper(uniqid()),
+            'amount' => fake()->randomFloat(2, 100, 10000),
+            'payment_method' => fake()->randomElement(['cash', 'bank_transfer']),
+            'status' => fake()->randomElement(['pending', 'verified', 'rejected']),
             'payment_proof' => null,
-            'payment_notes' => fake()->sentence(),
+            'payment_notes' => fake()->optional()->sentence(),
             'rejection_reason' => null,
             'verified_by' => null,
             'verified_at' => null,
         ];
-    }
-
-    public function verified(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'status' => 'verified',
-            'verified_by' => User::factory()->admin(),
-            'verified_at' => now(),
-        ]);
-    }
-
-    public function rejected(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'status' => 'rejected',
-            'rejection_reason' => fake()->sentence(),
-        ]);
     }
 }

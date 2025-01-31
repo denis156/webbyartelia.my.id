@@ -10,23 +10,16 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // Create Admin
-        User::create([
-            'name' => 'Admin Artelia',
+        // Create admin first
+        \App\Models\User::create([
+            'name' => 'Admin User',
             'email' => 'admin@artelia.dev',
-            'password' => Hash::make('password'),
+            'password' => bcrypt('password'),
             'role' => 'admin',
-            'phone_number' => '081234567890',
-            'address' => 'Jakarta, Indonesia',
-            'is_active' => true,
-            'email_verified_at' => now(),
         ]);
 
-        // Create Clients
-        User::factory(10)->create([
-            'role' => 'client',
-            'is_active' => true,
-            'email_verified_at' => now(),
-        ]);
+        // Create clients
+        \App\Models\User::factory(5)->create(['role' => 'client']);
     }
 }
+
