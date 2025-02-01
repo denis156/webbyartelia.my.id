@@ -6,6 +6,7 @@ use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
 use Filament\PanelProvider;
+use Filament\Pages\Dashboard;
 use Filament\Support\Colors\Color;
 use Filament\View\PanelsRenderHook;
 use Filament\Navigation\NavigationItem;
@@ -91,8 +92,9 @@ class AdminPanelProvider extends PanelProvider
                     NavigationGroup::make('Menu Utama')
                         ->items([
                             NavigationItem::make('Dashboard')
-                                ->label('Dashboard')
+                                ->label(fn(): string => __('filament-panels::pages/dashboard.title'))
                                 ->icon('heroicon-o-home')
+                                ->url(fn(): string => Dashboard::getUrl())
                                 ->isActiveWhen(fn() => request()->routeIs('filament.admin.pages.dashboard')),
                         ])
                         ->collapsible(false),
