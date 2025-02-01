@@ -18,6 +18,7 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -60,6 +61,17 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])
+            ->plugins([
+                FilamentEditProfilePlugin::make()
+                    ->slug('Profil')
+                    ->setTitle('Profil Saya')
+                    ->setIcon('heroicon-o-user')
+                    ->shouldShowAvatarForm(
+                        value: true,
+                        directory: 'public/avatars',
+                        rules: 'mimes:jpeg,png|max:10024'
+                    )
             ])
             ->renderHook(
                 PanelsRenderHook::SIDEBAR_FOOTER,

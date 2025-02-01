@@ -9,6 +9,7 @@
         "php": "^8.2",
         "codeat3/blade-fluentui-system-icons": "^1.33",
         "filament/filament": "^3.2",
+        "joaopaulolndev/filament-edit-profile": "^1.0",
         "laravel/framework": "^11.31",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9"
