@@ -27,10 +27,6 @@ class InvoiceResource extends Resource
 
     protected static ?string $navigationIcon = 'fluentui-document-bullet-list-multiple-20-o';
 
-    protected static ?string $navigationGroup = 'Manajemen Keuangan';
-
-    protected static ?int $navigationSort = 3;
-
     protected static ?string $recordTitleAttribute = 'invoice_number';
 
     protected static ?string $modelLabel = 'Faktur';

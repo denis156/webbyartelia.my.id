@@ -24,10 +24,6 @@ class ProjectResource extends Resource
 
     protected static ?string $navigationIcon = 'fluentui-cloud-archive-20-o';
 
-    protected static ?string $navigationGroup = 'Manajemen Proyek';
-
-    protected static ?int $navigationSort = 2;
-
     protected static ?string $recordTitleAttribute = 'project_name';
 
     protected static ?string $modelLabel = 'Proyek';
@@ -192,8 +188,10 @@ class ProjectResource extends Resource
                     ->label('Lampiran')
                     ->circular()
                     ->stacked()
-                    ->overlap(2)
-                    ->alignCenter()
+                    ->limit(3)
+                    ->limitedRemainingText(size: 'lg')
+                    ->checkFileExistence(false)
+                    ->extraImgAttributes(['loading' => 'lazy'])
                     ->defaultImageUrl(fn() => asset('images/project-placeholder.png')),
 
                 Tables\Columns\TextColumn::make('project_name')

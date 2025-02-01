@@ -27,10 +27,6 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'fluentui-people-team-20-o';
 
-    protected static ?string $navigationGroup = 'Manajemen Pengguna';
-
-    protected static ?int $navigationSort = 1;
-
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?string $modelLabel = 'Pengguna';
@@ -109,8 +105,14 @@ class UserResource extends Resource
                                         Forms\Components\TextInput::make('password')
                                             ->label('Kata Sandi')
                                             ->password()
-                                            ->dehydrateStateUsing(fn($state) => Hash::make($state))
+                                            ->dehydrateStateUsing(function ($state) {
+                                                if (!$state) {
+                                                    return null;
+                                                }
+                                                return Hash::make($state);
+                                            })
                                             ->required(fn(string $operation): bool => $operation === 'create')
+                                            ->dehydrated(fn($state) => filled($state))
                                             ->maxLength(255)
                                             ->autocomplete('new-password')
                                             ->revealable(),
@@ -121,11 +123,12 @@ class UserResource extends Resource
                                     ->icon('fluentui-video-person-20')
                                     ->collapsible()
                                     ->schema([
-                                        Forms\Components\FileUpload::make('profile_photo')
+                                        Forms\Components\FileUpload::make('avatar_url')
                                             ->label('Foto Profil')
                                             ->image()
-                                            ->directory('profile-photos')
-                                            ->visibility('private')
+                                            ->avatar()
+                                            ->directory('avatars')
+                                            ->visibility('public')
                                             ->maxSize(1024)
                                             ->imageEditor()
                                             ->circleCropper()
@@ -161,9 +164,8 @@ class UserResource extends Resource
                     ->alignLeft()
                     ->weight(FontWeight::Bold),
 
-                Tables\Columns\ImageColumn::make('profile_photo')
+                Tables\Columns\ImageColumn::make('avatar_url')
                     ->label('Foto')
-                    ->disk('public')
                     ->circular()
                     ->size(40)
                     ->alignCenter()
@@ -310,10 +312,10 @@ class UserResource extends Resource
                         ->visible(fn(Model $record): bool => $record->is_active)
                         ->action(fn(Model $record) => $record->update(['is_active' => false])),
                 ])
-                ->button()
-                ->color('primary')
-                ->label('Tindakan')
-                ->icon('fluentui-person-settings-20'),
+                    ->button()
+                    ->color('primary')
+                    ->label('Tindakan')
+                    ->icon('fluentui-person-settings-20'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -337,10 +339,10 @@ class UserResource extends Resource
                         ->color('warning')
                         ->modalIcon('fluentui-people-sync-20-o'),
                 ])
-                ->button()
-                ->color('primary')
-                ->label('Tindakan Massal')
-                ->icon('fluentui-people-settings-20'),
+                    ->button()
+                    ->color('primary')
+                    ->label('Tindakan Massal')
+                    ->icon('fluentui-people-settings-20'),
             ])
             ->emptyStateHeading('Belum ada pengguna')
             ->emptyStateDescription('Mulai dengan membuat pengguna baru.')

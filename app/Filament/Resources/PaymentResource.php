@@ -24,11 +24,7 @@ class PaymentResource extends Resource
     protected static ?string $model = Payment::class;
 
     protected static ?string $navigationIcon = 'fluentui-receipt-money-20-o';
-
-    protected static ?string $navigationGroup = 'Manajemen Keuangan';
-
-    protected static ?int $navigationSort = 4;
-
+    
     protected static ?string $recordTitleAttribute = 'payment_number';
 
     protected static ?string $modelLabel = 'Pembayaran';

@@ -8,7 +8,14 @@ use Filament\Widgets;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\View\PanelsRenderHook;
+use Filament\Navigation\NavigationItem;
+use App\Filament\Resources\UserResource;
+use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
+use Filament\Navigation\NavigationBuilder;
+use App\Filament\Resources\InvoiceResource;
+use App\Filament\Resources\PaymentResource;
+use App\Filament\Resources\ProjectResource;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -79,6 +86,39 @@ class AdminPanelProvider extends PanelProvider
                     return view('sidebar.bannerAdmin');
                 }
             )
+            ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
+                return $builder->groups([
+                    NavigationGroup::make('Menu Utama')
+                        ->items([
+                            NavigationItem::make('Dashboard')
+                                ->label('Dashboard')
+                                ->icon('heroicon-o-home')
+                                ->isActiveWhen(fn() => request()->routeIs('filament.admin.pages.dashboard')),
+                        ])
+                        ->collapsible(false),
+
+                    NavigationGroup::make('Manajemen Proyek')
+                        ->items([
+                            ...ProjectResource::getNavigationItems(),
+                            ...InvoiceResource::getNavigationItems(),
+                            ...PaymentResource::getNavigationItems(),
+                        ]),
+
+                    NavigationGroup::make('Manajemen Pengguna')
+                        ->items([
+                            ...UserResource::getNavigationItems(),
+                        ]),
+
+                    NavigationGroup::make('Pengaturan')
+                        ->items([
+                            NavigationItem::make('Profil')
+                                ->icon('heroicon-o-user-circle')
+                                ->isActiveWhen(fn() => request()->routeIs('filament.admin.pages.Profil'))
+                                ->url(fn() => route('filament.admin.pages.Profil')),
+                        ])
+                        ->collapsible(false),
+                ]);
+            })
             ->viteTheme('resources/css/filament/admin/theme.css');
     }
 }
