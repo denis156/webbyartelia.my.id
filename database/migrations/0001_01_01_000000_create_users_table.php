@@ -19,7 +19,7 @@ return new class extends Migration
             $table->enum('role', ['admin', 'client'])->default('client');
             $table->string('phone_number')->nullable();
             $table->text('address')->nullable();
-            $table->string('profile_photo')->nullable();
+            $table->string('avatar_url')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->boolean('is_active')->default(true);
             $table->rememberToken();

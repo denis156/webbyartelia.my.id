@@ -19,7 +19,7 @@ class UserFactory extends Factory
             'role' => fake()->randomElement(['admin', 'client']),
             'phone_number' => fake()->phoneNumber(),
             'address' => fake()->address(),
-            'profile_photo' => null,
+            'avatar_url' => null,
             'email_verified_at' => now(),
             'is_active' => true,
             'remember_token' => Str::random(10),

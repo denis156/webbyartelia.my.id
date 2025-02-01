@@ -69,8 +69,8 @@ class AdminPanelProvider extends PanelProvider
                     ->setIcon('heroicon-o-user')
                     ->shouldShowAvatarForm(
                         value: true,
-                        directory: 'public/avatars',
-                        rules: 'mimes:jpeg,png|max:10024'
+                        directory: 'avatars',
+                        rules: 'mimes:jpeg,png|max:1024'
                     )
             ])
             ->renderHook(
