@@ -17,6 +17,8 @@
             background: white;
             color: black;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         /* Screen-specific styles */
@@ -85,17 +87,16 @@
                 visibility: hidden !important;
             }
 
-            /* Ensure content fits within page */
-            .print-area main {
-                max-height: calc(var(--a4-height) - 2 * var(--page-margin) - 100mm);
-                overflow: visible;
-            }
-
             /* Ensure proper color printing */
             .print-area * {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
                 color-adjust: exact;
+            }
+
+            .no-break {
+                page-break-inside: avoid;
+                break-inside: avoid;
             }
         }
 
@@ -107,25 +108,18 @@
             }
         }
 
-        /* Tambahkan style untuk wrapper */
+        /* Wrapper styles */
         .invoice-wrapper {
-            @apply p-8 rounded-xl;
-            @apply bg-gray-100 dark:bg-gray-900;
-            /* Background yang responsive terhadap mode */
+            @apply p-8 rounded-xl bg-gray-100 dark:bg-gray-900 shadow-md dark:shadow-xl;
             min-height: calc(var(--a4-height) + 4rem);
-        }
-
-        /* Style untuk pola background */
-        .invoice-wrapper {
             background-image:
                 radial-gradient(circle at 1px 1px, rgb(203 213 225) 1px, transparent 0),
                 radial-gradient(circle at 1px 1px, rgb(203 213 225) 1px, transparent 0);
             background-size: 20px 20px;
             background-position: 0 0, 10px 10px;
-            @apply shadow-md dark:shadow-xl;
         }
 
-        /* Dark mode untuk pola background */
+        /* Dark mode wrapper */
         @media (prefers-color-scheme: dark) {
             .invoice-wrapper {
                 background-image:
@@ -134,7 +128,7 @@
             }
         }
 
-        /* Print style - sembunyikan wrapper saat print */
+        /* Print wrapper */
         @media print {
             .invoice-wrapper {
                 background: none !important;
@@ -143,13 +137,30 @@
                 box-shadow: none !important;
             }
         }
+
+        /* Content spacing */
+        .content-section {
+            @apply space-y-4;
+        }
+
+        /* Table styles */
+        .invoice-table {
+            @apply w-full border-collapse;
+        }
+
+        .invoice-table td {
+            @apply p-3 border-b border-gray-200;
+        }
+
+        .invoice-table tr:last-child td {
+            @apply border-b-0;
+        }
     </style>
 
     <div class="invoice-wrapper">
         <div class="print-area">
             <!-- Header -->
             <header class="border-b border-gray-100 p-6 sm:p-8 no-break" role="banner">
-                <!-- Main Header Content -->
                 <div class="flex items-center justify-between gap-6 sm:gap-8">
                     <div class="relative">
                         <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-primary-600">E-FAKTUR</h1>
@@ -163,38 +174,44 @@
             </header>
 
             <!-- Content -->
-            <main class="p-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <main class="p-4 flex-grow">
+                <div class="space-y-6">
                     <!-- Project Details -->
-                    <section class="space-y-4 no-break">
-                        <div>
-                            <h3 class="text-lg font-semibold text-black flex items-center">
-                                Proyek: {{ $this->record->project->project_name }}
-                            </h3>
-                            <div class="mt-2 bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <section class="content-section no-break">
+                        <h3 class="text-lg font-semibold text-black flex items-center gap-2 mb-3">
+                            @svg('fluentui-document-bullet-list-20', 'w-5 h-5 text-primary-500')
+                            Detail Proyek
+                        </h3>
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                            <div class="grid gap-3">
+                                <div>
+                                    <span class="font-medium text-black/90">Nama Proyek:</span>
+                                    <p class="text-black/80 mt-1">{{ $this->record->project->project_name }}</p>
+                                </div>
+
                                 <div>
                                     <span class="font-medium text-black/90">Deskripsi Proyek:</span>
-                                    <div class="font-medium text-sm text-black/80 mt-1 prose prose-sm max-w-none">
+                                    <div class="text-sm text-black/80 mt-1 prose prose-sm max-w-none">
                                         {!! $this->record->project->description !!}
                                     </div>
                                 </div>
-                                <div class="mt-3">
-                                    <span class="font-medium text-black/90 text-base">
-                                        Tipe Pembayaran:
-                                        @if ($this->record->payment_type === 'full')
-                                            Bayar Penuh
-                                        @else
-                                            Bayar Bertahap
-                                        @endif
-                                    </span>
+
+                                <div>
+                                    <span class="font-medium text-black/90">Tipe Pembayaran:</span>
+                                    <p class="text-black/80 mt-1">
+                                        {{ $this->record->payment_type === 'full' ? 'Bayar Penuh' : 'Bayar Bertahap' }}
+                                    </p>
                                 </div>
                             </div>
                         </div>
                     </section>
 
                     <!-- Payment Details -->
-                    <section class="no-break">
-                        <h3 class="text-lg font-semibold text-black mb-3">Rincian Pembayaran:</h3>
+                    <section class="content-section no-break">
+                        <h3 class="text-lg font-semibold text-black flex items-center gap-2 mb-3">
+                            @svg('fluentui-money-20', 'w-5 h-5 text-primary-500')
+                            Rincian Pembayaran
+                        </h3>
                         <div class="bg-gray-50 border border-gray-200 rounded-lg overflow-hidden">
                             <table class="w-full">
                                 <tbody>
@@ -211,7 +228,7 @@
                                             {{ number_format(($this->record->project->price * $this->record->tax_amount) / 100, 0, ',', '.') }}
                                         </td>
                                     </tr>
-                                    <tr class="border-b border-gray-200">
+                                    <tr class="border-b border-gray-200 bg-gray-50">
                                         <td class="p-3 font-semibold text-black">Total</td>
                                         <td class="p-3 font-bold text-right text-primary-600">
                                             Rp {{ number_format($this->record->total_amount, 0, ',', '.') }}
@@ -237,7 +254,7 @@
             </main>
 
             <!-- Footer -->
-            <footer class="mt-6 pt-4 border-t border-gray-200 px-4 pb-4 no-break">
+            <footer class="mt-auto pt-4 border-t border-gray-200 px-4 pb-4 no-break">
                 <div class="flex flex-col sm:flex-row sm:justify-between text-sm text-black/80">
                     <div class="mb-4 sm:mb-0">
                         <p class="leading-relaxed flex items-center">
@@ -252,9 +269,9 @@
                     <div class="text-right flex flex-col items-end">
                         <p class="leading-relaxed flex items-center justify-end">
                             @svg('heroicon-o-building-office', 'w-4 h-4 mr-2')
-                            Dibuat di:{{ config('app.name') }}
+                            {{ config('app.name') }}
                         </p>
-                        <p class="leading-relaxed flex items-center justify-end mt-2 text-sm text-black/80">
+                        <p class="leading-relaxed flex items-center justify-end mt-2">
                             @svg(
                                 match ($this->record->status) {
                                     'draft' => 'fluentui-send-clock-20-o',
@@ -265,7 +282,7 @@
                                     default => 'fluentui-send-clock-20-o',
                                 },
                                 'w-4 h-4 mr-2'
-                            )Status:
+                            )
                             {{ match ($this->record->status) {
                                 'draft' => 'Draft',
                                 'sent' => 'Terkirim',
@@ -285,8 +302,9 @@
                         <b>{{ $this->record->project->user?->name ?? 'Pengguna Sudah Dihapus' }}</b> sudah percaya sama
                         Artelia.DEV!
                     </p>
-                    <p class="text-base text-black/80 italic mb-2">Semoga projectnya sukses dan kita bisa kolaborasi
-                        lagi di project selanjutnya!"</p>
+                    <p class="text-base text-black/80 italic mb-2">
+                        Semoga projectnya sukses dan kita bisa kolaborasi lagi di project selanjutnya!"
+                    </p>
                     <p class="text-sm text-black/80 font-medium">----- Denis Djodian Ardika -----</p>
                     <p class="text-xs text-black/80">Founder Artelia.DEV & Web By Artelia</p>
                 </div>
@@ -305,5 +323,4 @@
             </footer>
         </div>
     </div>
-
 </x-filament-panels::page>
