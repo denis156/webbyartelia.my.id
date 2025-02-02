@@ -99,7 +99,7 @@ class Payment extends Model
 
         static::creating(function ($payment) {
             if (empty($payment->payment_number)) {
-                $payment->payment_number = 'REP-' . strtoupper(uniqid());
+                $payment->payment_number = 'TBP-' . strtoupper(uniqid());
             }
         });
     }

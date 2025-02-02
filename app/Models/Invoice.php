@@ -155,7 +155,7 @@ class Invoice extends Model
             DB::transaction(function () use ($invoice) {
                 if (empty($invoice->invoice_number)) {
                     // Format: FKR-YYMMDD-RANDOM
-                    $prefix = 'FKR-' . date('ymd') . '-';
+                    $prefix = 'FUP-' . date('ymd') . '-';
 
                     // Generate random number 5 digit
                     $randomNumber = mt_rand(10000, 99999);
