@@ -7,6 +7,32 @@
             --page-margin: 15mm;
         }
 
+        /* Preview section styles */
+        .preview-section {
+            @apply mb-4 p-4 bg-primary-50 dark:bg-primary-950 rounded-lg;
+            display: none;
+        }
+
+        @media screen {
+            .preview-section {
+                display: block;
+            }
+        }
+
+        @media print {
+            .preview-section {
+                display: none !important;
+            }
+        }
+
+        .preview-alert {
+            @apply flex items-center gap-2 text-primary-700 dark:text-primary-300 mb-4;
+        }
+
+        .preview-info {
+            @apply bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm;
+        }
+
         /* Base styles */
         .print-area {
             width: var(--a4-width);
@@ -156,6 +182,56 @@
             @apply border-b-0;
         }
     </style>
+
+    <div class="preview-section">
+
+        <div class="preview-info">
+            <div class="grid gap-4 md:grid-cols-2">
+                <div>
+                    <h4 class="font-medium text-gray-700 dark:text-gray-300">Status Faktur:</h4>
+                    <div class="mt-1 flex items-center gap-2">
+                        @svg(
+                            match ($this->record->status) {
+                                'draft' => 'fluentui-send-clock-20-o',
+                                'sent' => 'fluentui-mail-checkmark-20-o',
+                                'partially_paid' => 'fluentui-money-calculator-20-o',
+                                'paid' => 'fluentui-receipt-money-20-o',
+                                'cancelled' => 'fluentui-dismiss-circle-20-o',
+                                default => 'fluentui-send-clock-20-o',
+                            },
+                            'w-5 h-5'
+                        )
+                        <span>{{ match ($this->record->status) {
+                            'draft' => 'Draft',
+                            'sent' => 'Terkirim',
+                            'paid' => 'Bayar Lunas',
+                            'partially_paid' => 'Bayar Sebagian',
+                            'cancelled' => 'Dibatalkan',
+                            default => $this->record->status,
+                        } }}</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="font-medium text-gray-700 dark:text-gray-300">Akan Dikirim Ke:</h4>
+                    <div class="mt-1 flex items-center gap-2">
+                        @svg('heroicon-o-envelope', 'w-5 h-5')
+                        <span>{{ $this->record->project->user->email }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <h4 class="font-medium text-gray-700 dark:text-gray-300 mb-2">Catatan Preview:</h4>
+                <ul class="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                    <li>Bagian ini hanya muncul di preview dan tidak akan tercetak</li>
+                    <li>Periksa kembali semua detail faktur sebelum mengirim</li>
+                    <li>Pastikan alamat email penerima sudah benar</li>
+                    <li>Status faktur akan berubah menjadi "Terkirim" setelah dikirim</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 
     <div class="invoice-wrapper">
         <div class="print-area">
