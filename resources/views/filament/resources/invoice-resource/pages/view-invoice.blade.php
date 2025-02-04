@@ -389,11 +389,11 @@
                 <div class="flex justify-between mt-4 pt-4 border-t border-gray-200 text-sm text-black/80">
                     <div class="flex items-center">
                         @svg('heroicon-o-phone', 'w-4 h-4 mr-2')
-                        <span>{{ $this->record->creator->phone_number ?? '+62 821-4151-7722' }}</span>
+                        <span>{{ $this->record->creator->phone_number ?? '+62 819-4346-2730' }}</span>
                     </div>
                     <div class="flex items-center">
                         @svg('heroicon-o-envelope', 'w-4 h-4 mr-2')
-                        <span>{{ $this->record->creator->email ?? 'denis@artelia.dev' }}</span>
+                        <span>{{ $this->record->creator->email ?? 'info@webbyartelia.my.id' }}</span>
                     </div>
                 </div>
             </footer>
